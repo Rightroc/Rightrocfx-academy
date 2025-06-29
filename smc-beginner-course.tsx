@@ -1,5 +1,7 @@
 "use client"
 
+import type React from "react"
+
 import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -20,10 +22,49 @@ import {
   Brain,
   Trophy,
 } from "lucide-react"
+import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
+
+interface CertificateProps {
+  studentName: string
+  onBack: () => void
+  certificateNumber: string
+}
+
+const Certificate: React.FC<CertificateProps> = ({ studentName, onBack, certificateNumber }) => {
+  return (
+    <Card className="bg-gradient-to-r from-green-100 to-blue-100 border-2 border-blue-200">
+      <CardHeader>
+        <CardTitle className="text-2xl font-bold text-center text-blue-700">
+          Rightroc FX - Smart Money Concepts Certificate
+        </CardTitle>
+        <CardDescription className="text-center text-blue-600">
+          This certificate confirms that {studentName} has successfully completed the Smart Money Concepts Beginner's
+          Course.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="text-center">
+        <div className="text-lg font-semibold text-green-700 mb-4">Awarded to:</div>
+        <div className="text-4xl font-extrabold text-purple-800 mb-6">{studentName}</div>
+        <div className="text-gray-600 mb-4">
+          For demonstrating a strong understanding of Smart Money Concepts and their application in financial markets.
+        </div>
+        <div className="text-sm text-gray-500 mb-2">Certificate Number: {certificateNumber}</div>
+        <div className="text-sm text-gray-500">Date: {new Date().toLocaleDateString()}</div>
+        <Button onClick={onBack} className="mt-6 bg-blue-600 hover:bg-blue-700">
+          Go Back
+        </Button>
+      </CardContent>
+    </Card>
+  )
+}
 
 export default function SMCBeginnerCourse() {
   const [currentLesson, setCurrentLesson] = useState(1)
   const [completedLessons, setCompletedLessons] = useState<number[]>([])
+  const [studentName, setStudentName] = useState("")
+  const [showCertificate, setShowCertificate] = useState(false)
+  const [certificateGenerated, setCertificateGenerated] = useState(false)
 
   const lessons = [
     { id: 1, title: "What is Smart Money?", icon: Brain, duration: "5 min" },
@@ -41,6 +82,17 @@ export default function SMCBeginnerCourse() {
   }
 
   const progressPercentage = (completedLessons.length / lessons.length) * 100
+
+  const generateCertificateNumber = () => {
+    const date = new Date()
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, "0")
+    const day = String(date.getDate()).padStart(2, "0")
+    const random = Math.floor(Math.random() * 1000)
+      .toString()
+      .padStart(3, "0")
+    return `RFX-SMC-${year}${month}${day}-${random}`
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-4">
@@ -680,9 +732,7 @@ export default function SMCBeginnerCourse() {
                         <div>
                           <strong>Reversal:</strong> Price crashes back down to $102K
                         </div>
-                        <div className="font-semibold text-orange-800">
-                          Result: Retail bought the top, smart money sold high!
-                        </div>
+                        <div className="font-semibold text-orange-800">Result:</div>
                       </div>
                     </div>
 
@@ -1144,40 +1194,89 @@ export default function SMCBeginnerCourse() {
 
         {/* Course Summary */}
         {completedLessons.length === lessons.length && (
-          <Card className="bg-gradient-to-r from-green-50 to-blue-50 border-2 border-green-200">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-green-700">
-                <Trophy className="w-6 h-6" />
-                Course Completed! 🎉
-              </CardTitle>
-              <CardDescription>You're now ready to trade like smart money</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center space-y-4">
-                <div className="text-lg font-semibold text-green-700">
-                  Congratulations! You've mastered Smart Money Concepts
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                  <div className="p-3 bg-white rounded-lg">
-                    <div className="font-semibold">XAUUSD Ready</div>
-                    <div className="text-gray-600">Apply SMC to Gold trading</div>
+          <div className="space-y-6">
+            {!showCertificate ? (
+              <Card className="bg-gradient-to-r from-green-50 to-blue-50 border-2 border-green-200">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-green-700">
+                    <Trophy className="w-6 h-6" />
+                    Course Completed! 🎉
+                  </CardTitle>
+                  <CardDescription>You're now ready to trade like smart money</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-center space-y-6">
+                    <div className="text-lg font-semibold text-green-700">
+                      Congratulations! You've mastered Smart Money Concepts
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                      <div className="p-3 bg-white rounded-lg">
+                        <div className="font-semibold">XAUUSD Ready</div>
+                        <div className="text-gray-600">Apply SMC to Gold trading</div>
+                      </div>
+                      <div className="p-3 bg-white rounded-lg">
+                        <div className="font-semibold">BTCUSD Ready</div>
+                        <div className="text-gray-600">Apply SMC to Bitcoin trading</div>
+                      </div>
+                      <div className="p-3 bg-white rounded-lg">
+                        <div className="font-semibold">GBPUSD Ready</div>
+                        <div className="text-gray-600">Apply SMC to Pound trading</div>
+                      </div>
+                    </div>
+
+                    {/* Certificate Generation Section */}
+                    <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-6 rounded-lg border-2 border-purple-200">
+                      <h3 className="text-xl font-bold text-purple-700 mb-4">🏆 Claim Your Professional Certificate</h3>
+                      <p className="text-purple-600 mb-4">
+                        Get your official Smart Money Concepts certification from Rightroc FX
+                      </p>
+
+                      <div className="max-w-md mx-auto space-y-4">
+                        <div>
+                          <Label htmlFor="studentName" className="text-sm font-medium text-purple-700">
+                            Enter your full name for the certificate:
+                          </Label>
+                          <Input
+                            id="studentName"
+                            value={studentName}
+                            onChange={(e) => setStudentName(e.target.value)}
+                            placeholder="Your Full Name"
+                            className="mt-1"
+                          />
+                        </div>
+                        <Button
+                          onClick={() => {
+                            if (studentName.trim()) {
+                              setShowCertificate(true)
+                              setCertificateGenerated(true)
+                            }
+                          }}
+                          disabled={!studentName.trim()}
+                          className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                          size="lg"
+                        >
+                          <Trophy className="w-5 h-5 mr-2" />
+                          Generate My Certificate
+                        </Button>
+                      </div>
+                    </div>
+
+                    <Button className="bg-blue-600 hover:bg-blue-700">
+                      <Eye className="w-4 h-4 mr-2" />
+                      Start Live Analysis
+                    </Button>
                   </div>
-                  <div className="p-3 bg-white rounded-lg">
-                    <div className="font-semibold">BTCUSD Ready</div>
-                    <div className="text-gray-600">Apply SMC to Bitcoin trading</div>
-                  </div>
-                  <div className="p-3 bg-white rounded-lg">
-                    <div className="font-semibold">GBPUSD Ready</div>
-                    <div className="text-gray-600">Apply SMC to Pound trading</div>
-                  </div>
-                </div>
-                <Button className="bg-blue-600 hover:bg-blue-700">
-                  <Eye className="w-4 h-4 mr-2" />
-                  Start Live Analysis
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+                </CardContent>
+              </Card>
+            ) : (
+              // Certificate Display
+              <Certificate
+                studentName={studentName}
+                onBack={() => setShowCertificate(false)}
+                certificateNumber={generateCertificateNumber()}
+              />
+            )}
+          </div>
         )}
 
         {/* Footer Watermark */}
